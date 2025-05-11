@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Box } from "@mui/material";
 import SideNav from "../moleculas/SideNav";
 import DashboardCards from "../moleculas/DashboardCards";
 import DashboardCharts from "./DashboardCharts";
+import MontarPedido from "../pages/MontarPedido";
+import Pedidos from "../pages/Pedidos";
 
 const AtendimentoMain = () => {
+  const [currentView, setCurrentView] = useState("dashboard");
   const [loading, setLoading] = useState(false);
   const [cardsData, setCardsData] = useState([]);
   const [weeklyData, setWeeklyData] = useState([
@@ -23,34 +26,35 @@ const AtendimentoMain = () => {
     { name: "Grupo D", value: 200 },
   ]);
 
+  const handleMenuClick = (view) => {
+    setCurrentView(view);
+  };
+
   return (
     <Box sx={{ display: "flex" }}>
-      <SideNav />
+      <SideNav onMenuClick={handleMenuClick} />
       <Box
         component="main"
         sx={{
           flexGrow: 1,
           p: 3,
-          // maxWidth: "calc(100vw - 10px)",
+          maxWidth: "1920px",
+          margin: "0 auto",
           boxSizing: "border-box",
         }}
       >
-        <Box
-          sx={{
-            flexGrow: 1,
-            p: 3,
-            // maxWidth: "calc(100vw - 10px)",
-            boxSizing: "border-box",
-          }}
-        >
-          <DashboardCards cardsData={cardsData} loading={loading} />
-        </Box>
-
-        <DashboardCharts
-          weeklyData={weeklyData}
-          distributionData={distributionData}
-          loading={loading}
-        />
+        {currentView === "dashboard" && (
+          <>
+            <DashboardCards cardsData={cardsData} loading={loading} />
+            <DashboardCharts
+              weeklyData={weeklyData}
+              distributionData={distributionData}
+              loading={loading}
+            />
+          </>
+        )}
+        {currentView === "pedidos" && <Pedidos />}
+        {currentView === "montarPedido" && <MontarPedido />}
       </Box>
     </Box>
   );

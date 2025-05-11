@@ -6,31 +6,43 @@ const Pedidos = () => {
   const mockPedidos = [
     {
       id: 1,
-      cliente: "João Silva",
-      status: "Pendente",
-      total: "R$ 150,00",
-      data: "20/01/2024",
-    },
-    {
-      id: 2,
-      cliente: "Maria Santos",
-      status: "Finalizado",
-      total: "R$ 280,00",
-      data: "19/01/2024",
-    },
-    {
-      id: 3,
-      cliente: "Pedro Souza",
-      status: "Em Preparo",
-      total: "R$ 95,00",
-      data: "20/01/2024",
-    },
-    {
-      id: 4,
-      cliente: "Ana Oliveira",
-      status: "Pendente",
-      total: "R$ 175,00",
-      data: "19/01/2024",
+      nomeCliente: "ale fadim",
+      statusPedido: "RECEBIDO",
+      precoTotal: 55.9,
+      observacao: "",
+      tipoEntrega: "ENCOMENDA",
+      itens: [
+        {
+          id: 21,
+          quantidade: 1,
+          produto: {
+            id: 1,
+            nome: "Pizza de palmito",
+            preco: 39.9,
+            quantidadeEstoque: 9,
+            ingredientes: "",
+            categoriaProduto: "PIZZA",
+          },
+          tamanhoPizza: "MEIO_A_MEIO",
+          bordaRecheada: "CATUPIRY",
+          precoTotal: 27.95,
+        },
+        {
+          id: 22,
+          quantidade: 1,
+          produto: {
+            id: 2,
+            nome: "Pizza de FRANGO",
+            preco: 39.9,
+            quantidadeEstoque: 10,
+            ingredientes: "",
+            categoriaProduto: "PIZZA",
+          },
+          tamanhoPizza: "MEIO_A_MEIO",
+          bordaRecheada: "CATUPIRY",
+          precoTotal: 27.95,
+        },
+      ],
     },
   ];
 

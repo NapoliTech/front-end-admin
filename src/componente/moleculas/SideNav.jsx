@@ -16,11 +16,10 @@ import {
   Settings as SettingsIcon,
   ChevronLeft as ChevronLeftIcon,
   Menu as MenuIcon,
+  AddShoppingCart as MontarPedidoIcon,
 } from "@mui/icons-material";
 
-const drawerWidth = 240;
-
-const SideNav = () => {
+const SideNav = ({ onMenuClick }) => {
   const [open, setOpen] = useState(true);
 
   const handleDrawer = () => {
@@ -31,10 +30,10 @@ const SideNav = () => {
     <Drawer
       variant="permanent"
       sx={{
-        width: open ? drawerWidth : "64px",
+        width: open ? 240 : "64px",
         flexShrink: 0,
         "& .MuiDrawer-paper": {
-          width: open ? drawerWidth : "64px",
+          width: open ? 240 : "64px",
           boxSizing: "border-box",
           backgroundColor: "#f5f5f5",
           transition: "width 0.3s",
@@ -49,6 +48,7 @@ const SideNav = () => {
         </IconButton>
         <List>
           <ListItemButton
+            onClick={() => onMenuClick("dashboard")}
             sx={{ "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" } }}
           >
             <ListItemIcon>
@@ -57,12 +57,22 @@ const SideNav = () => {
             {open && <ListItemText primary="Dashboard" />}
           </ListItemButton>
           <ListItemButton
+            onClick={() => onMenuClick("pedidos")}
             sx={{ "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" } }}
           >
             <ListItemIcon>
               <AssignmentIcon />
             </ListItemIcon>
             {open && <ListItemText primary="Pedidos Ativos" />}
+          </ListItemButton>
+          <ListItemButton
+            onClick={() => onMenuClick("montarPedido")}
+            sx={{ "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" } }}
+          >
+            <ListItemIcon>
+              <MontarPedidoIcon />
+            </ListItemIcon>
+            {open && <ListItemText primary="Montar Pedido" />}
           </ListItemButton>
           <Divider />
           <ListItemButton
