@@ -22,15 +22,17 @@ const Dashboard = () => {
   ]);
 
   return (
-    <>
-    <h1>poiiiiiiiiiiii</h1>
+    <Box
+      
+    >
+      
       <DashboardCards cardsData={cardsData} loading={loading} />
-      <DashboardCharts
+      <DashboardCharts  
         weeklyData={weeklyData}
         distributionData={distributionData}
         loading={loading}
       />
-    </>
+    </Box>
   );
 };
 
