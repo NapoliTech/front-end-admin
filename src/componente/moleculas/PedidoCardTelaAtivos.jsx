@@ -11,6 +11,9 @@ import {
   CardActions,
   Button,
   Typography,
+  Menu,
+  MenuItem,
+  CircularProgress,
 } from "@mui/material";
 import {
   KeyboardArrowDown,
@@ -19,11 +22,15 @@ import {
   Edit,
   Delete,
   LocalPizza,
+  MoreVert,
 } from "@mui/icons-material";
+import { pedidoService } from "../../services/pedidoService";
 
-const PedidoCardTelaAtivos = ({ pedido }) => {
+const PedidoCardTelaAtivos = ({ pedido, onStatusChange }) => {
   // Estado local para este card específico
   const [isOpen, setIsOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   // Verificar se o pedido existe para evitar erros
   if (!pedido) {
@@ -45,6 +52,31 @@ const PedidoCardTelaAtivos = ({ pedido }) => {
     return colors[status] || "default";
   };
 
+  const handleMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleStatusChange = async (novoStatus) => {
+    setLoading(true);
+    handleMenuClose();
+
+    try {
+      await pedidoService.atualizarStatusPedido(pedido.id, novoStatus);
+      if (onStatusChange) {
+        onStatusChange(pedido.id, novoStatus);
+      }
+    } catch (error) {
+      console.error("Erro ao atualizar status:", error);
+      // Aqui você poderia mostrar uma mensagem de erro
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Card
       elevation={2}
@@ -60,8 +92,28 @@ const PedidoCardTelaAtivos = ({ pedido }) => {
             ? "#4caf50"
             : "#9e9e9e"
         }`,
+        position: "relative",
       }}
     >
+      {loading && (
+        <Box
+          sx={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: "rgba(255, 255, 255, 0.7)",
+            zIndex: 1,
+          }}
+        >
+          <CircularProgress size={40} />
+        </Box>
+      )}
+
       <CardContent sx={{ p: 2, pb: 1 }}>
         <Box
           sx={{
@@ -106,71 +158,110 @@ const PedidoCardTelaAtivos = ({ pedido }) => {
           <IconButton size="small" color="error">
             <Delete />
           </IconButton>
+          <IconButton size="small" onClick={handleMenuOpen}>
+            <MoreVert />
+          </IconButton>
+
+          <Menu
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={handleMenuClose}
+          >
+            <MenuItem
+              disabled={pedido.statusPedido === "RECEBIDO"}
+              onClick={() => handleStatusChange("RECEBIDO")}
+            >
+              Marcar como Recebido
+            </MenuItem>
+            <MenuItem
+              disabled={pedido.statusPedido === "EM_PREPARO"}
+              onClick={() => handleStatusChange("EM_PREPARO")}
+            >
+              Marcar como Em Preparo
+            </MenuItem>
+            <MenuItem
+              disabled={pedido.statusPedido === "PRONTO"}
+              onClick={() => handleStatusChange("PRONTO")}
+            >
+              Marcar como Pronto
+            </MenuItem>
+            <MenuItem
+              disabled={pedido.statusPedido === "ENTREGUE"}
+              onClick={() => handleStatusChange("ENTREGUE")}
+            >
+              Marcar como Entregue
+            </MenuItem>
+            <Divider />
+            <MenuItem onClick={handleMenuClose}>Cancelar Pedido</MenuItem>
+          </Menu>
         </Box>
-        <Button
+
+        <IconButton
           size="small"
-          endIcon={isOpen ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
           onClick={toggleDetails}
+          aria-expanded={isOpen}
+          aria-label="mostrar detalhes"
         >
-          Detalhes
-        </Button>
+          {isOpen ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
+        </IconButton>
       </CardActions>
 
       <Collapse in={isOpen} timeout="auto" unmountOnExit>
-        <Divider />
-        <CardContent sx={{ p: 2 }}>
+        <CardContent sx={{ pt: 0 }}>
+          <Divider sx={{ my: 1 }} />
+
           {pedido.observacao && (
             <Box sx={{ mb: 2 }}>
-              <Typography variant="body2">
-                <strong>Observação:</strong> {pedido.observacao}
+              <Typography variant="subtitle2" color="text.secondary">
+                Observação:
               </Typography>
+              <Typography variant="body2">{pedido.observacao}</Typography>
             </Box>
           )}
 
-          <Typography variant="subtitle2" gutterBottom sx={{ mt: 1 }}>
-            <LocalPizza sx={{ mr: 1, verticalAlign: "middle", fontSize: 18 }} />
-            Itens do Pedido
+          <Typography
+            variant="subtitle2"
+            color="text.secondary"
+            sx={{ display: "flex", alignItems: "center" }}
+          >
+            <LocalPizza sx={{ mr: 1, fontSize: 18 }} />
+            Itens do Pedido:
           </Typography>
 
           <Stack spacing={1} sx={{ mt: 1 }}>
-            {/* Verificar se itens existe antes de mapear */}
-            {pedido.itens && pedido.itens.length > 0 ? (
-              pedido.itens.map((item) => (
+            {pedido.itens.map((item) => (
+              <Box
+                key={item.id}
+                sx={{
+                  p: 1,
+                  borderRadius: 1,
+                  backgroundColor: "background.paper",
+                  border: "1px solid",
+                  borderColor: "divider",
+                }}
+              >
+                <Typography variant="body2" fontWeight="medium">
+                  {item.produto.nome}
+                  {item.tamanhoPizza && ` - ${item.tamanhoPizza}`}
+                </Typography>
+
                 <Box
-                  key={item.id}
                   sx={{
-                    p: 1,
-                    bgcolor: "background.default",
-                    borderRadius: 1,
-                    fontSize: "0.875rem",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    mt: 0.5,
                   }}
                 >
-                  <Typography variant="body2" fontWeight="medium">
-                    {item.produto?.nome || "Produto sem nome"}
+                  <Typography variant="body2" color="text.secondary">
+                    {item.quantidade}x
+                    {item.bordaRecheada && ` • Borda: ${item.bordaRecheada}`}
                   </Typography>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      mt: 0.5,
-                    }}
-                  >
-                    <Typography variant="caption" color="text.secondary">
-                      {item.tamanhoPizza && `${item.tamanhoPizza} • `}
-                      {item.bordaRecheada && `Borda: ${item.bordaRecheada} • `}
-                      Qtd: {item.quantidade || 1}
-                    </Typography>
-                    <Typography variant="body2" fontWeight="bold">
-                      R$ {(item.precoTotal || 0).toFixed(2)}
-                    </Typography>
-                  </Box>
+                  <Typography variant="body2">
+                    R$ {item.precoTotal.toFixed(2)}
+                  </Typography>
                 </Box>
-              ))
-            ) : (
-              <Typography variant="body2" color="text.secondary">
-                Nenhum item encontrado neste pedido.
-              </Typography>
-            )}
+              </Box>
+            ))}
           </Stack>
         </CardContent>
       </Collapse>

@@ -4,63 +4,48 @@ import {
   CardContent,
   Typography,
   Box,
-  Chip,
-  Avatar,
   IconButton,
-  Fade,
+  Chip,
 } from "@mui/material";
-import { LocalDrink, AttachMoney, Delete } from "@mui/icons-material";
-import { styled } from "@mui/material/styles";
-
-const StyledCard = styled(Card)(({ theme }) => ({
-  transition: "transform 0.2s, box-shadow 0.2s",
-  "&:hover": {
-    transform: "translateY(-4px)",
-    boxShadow: theme.shadows[8],
-  },
-}));
+import { Delete, LocalDrink } from "@mui/icons-material";
 
 const BebidaItemCard = ({ bebida, index, onRemove }) => {
   return (
-    <Fade in={true}>
-      <StyledCard variant="outlined">
-        <CardContent
+    <Card variant="outlined" sx={{ borderRadius: 1 }}>
+      <CardContent sx={{ py: 1, px: 2, "&:last-child": { pb: 1 } }}>
+        <Box
           sx={{
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
           }}
         >
-          <Box>
-            <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
-              Bebida
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <LocalDrink color="secondary" sx={{ mr: 1 }} fontSize="small" />
+            <Typography variant="body1">
+              <strong>{bebida.nome}</strong>
             </Typography>
-            <Typography>{bebida.nome}</Typography>
+          </Box>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
             <Chip
-              icon={<AttachMoney />}
               label={`R$ ${bebida.preco}`}
               size="small"
               color="secondary"
               variant="outlined"
-              sx={{ mt: 1 }}
-            />
-          </Box>
-          <Box>
-            <IconButton
-              color="error"
-              size="small"
-              onClick={() => onRemove(index)}
               sx={{ mr: 1 }}
+            />
+            <IconButton
+              size="small"
+              color="error"
+              onClick={() => onRemove(index)}
+              sx={{ p: 0.5 }}
             >
-              <Delete />
+              <Delete fontSize="small" />
             </IconButton>
-            <Avatar sx={{ bgcolor: "secondary.main", display: "inline-flex" }}>
-              <LocalDrink />
-            </Avatar>
           </Box>
-        </CardContent>
-      </StyledCard>
-    </Fade>
+        </Box>
+      </CardContent>
+    </Card>
   );
 };
 
