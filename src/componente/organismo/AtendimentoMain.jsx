@@ -54,7 +54,9 @@ const AtendimentoMain = () => {
           </>
         )}
         {currentView === "pedidos" && <Pedidos />}
-        {currentView === "montarPedido" && <MontarPedido />}
+        {currentView === "montarPedido" && (
+          <MontarPedido onNavigate={handleMenuClick} />
+        )}
       </Box>
     </Box>
   );

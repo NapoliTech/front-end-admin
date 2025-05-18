@@ -21,6 +21,8 @@ import {
   CircularProgress,
   Chip,
   ButtonGroup,
+  TextField,
+  InputAdornment
 } from "@mui/material";
 import {
   LocalPizza,
@@ -34,17 +36,18 @@ import {
   Fastfood,
   CheckCircle,
   ArrowForward,
+  Search,
+  Clear
 } from "@mui/icons-material";
 import { pedidoService } from "../../services/pedidoService";
 
 // Importar componentes modulares
-import LoadingIndicator from "../moleculas/LoadingIndicator";
 import PizzaItemCard from "../moleculas/PizzaItemCard";
 import BebidaItemCard from "../moleculas/BebidaItemCard";
 import PedidoCard from "../moleculas/PedidoCard";
 import ProdutoListItem from "../moleculas/ProdutoListItem";
 
-const MontarPedidoForm = ({ onContinue ,onRetirarNaLoja }) => {
+const MontarPedidoForm = ({ onContinue, onRetirarNaLoja }) => {
   const [tamanho, setTamanho] = useState("");
   const [borda, setBorda] = useState("");
   const [openPizzaDialog, setOpenPizzaDialog] = useState(false);
@@ -52,27 +55,31 @@ const MontarPedidoForm = ({ onContinue ,onRetirarNaLoja }) => {
   const [tempSelectedPizzas, setTempSelectedPizzas] = useState([]);
   const [tempSelectedBebidas, setTempSelectedBebidas] = useState([]);
   const [pedidos, setPedidos] = useState([]);
-  const [pizzas, setPizzas] = useState([]);
-  const [bebidas, setBebidas] = useState([]);
+  const [produtos, setProdutos] = useState([]);
   const [currentPizzaSelection, setCurrentPizzaSelection] =
     useState("primeira");
   const [loading, setLoading] = useState(true);
   const [loadingPedido, setLoadingPedido] = useState(false);
   const [successMessage, setSuccessMessage] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // Novo estado para armazenar o payload no formato correto
+  const [pedidoPayload, setPedidoPayload] = useState({
+    clienteId: null, // Será preenchido em outra tela
+    itens: [],
+  });
 
   const isSelectionEnabled = tamanho !== "" && borda !== "";
-  const canAddPedido = isSelectionEnabled && tempSelectedPizzas.length >= 2;
-
+  const canAddPedido = isSelectionEnabled && tempSelectedPizzas.length > 0;
   const canContinue = pedidos.length > 0;
-  
+
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
       try {
-        const pizzasData = await pedidoService.getPizzas();
-        const bebidasData = await pedidoService.getBebidas();
-        setPizzas(pizzasData);
-        setBebidas(bebidasData);
+        // Usar a função getProdutos do pedidoService
+        const produtosData = await pedidoService.getProdutos();
+        setProdutos(produtosData);
       } catch (error) {
         console.error("Erro ao carregar dados:", error);
       } finally {
@@ -81,6 +88,33 @@ const MontarPedidoForm = ({ onContinue ,onRetirarNaLoja }) => {
     };
     loadData();
   }, []);
+
+  // Filtrar produtos por categoria
+  const pizzas = produtos.filter(
+    (p) => p.categoriaProduto === "PIZZA" || p.categoriaProduto === "PIZZA_DOCE"
+  );
+  const bebidas = produtos.filter((p) => p.categoriaProduto === "BEBIDAS");
+
+  // Filtrar pizzas com base no termo de pesquisa
+  const filterPizzas = (pizzaList) => {
+    if (!searchTerm.trim()) return pizzaList;
+
+    const term = searchTerm.toLowerCase().trim();
+    return pizzaList.filter(
+      (pizza) =>
+        pizza.nome.toLowerCase().includes(term) ||
+        (pizza.ingredientes && pizza.ingredientes.toLowerCase().includes(term))
+    );
+  };
+
+  // Pizzas filtradas por categoria e termo de busca
+  const pizzasSalgadas = filterPizzas(
+    pizzas.filter((pizza) => pizza.categoriaProduto === "PIZZA")
+  );
+
+  const pizzasDoces = filterPizzas(
+    pizzas.filter((pizza) => pizza.categoriaProduto === "PIZZA_DOCE")
+  );
 
   const handlePizzaSelect = (pizza) => {
     if (currentPizzaSelection === "primeira") {
@@ -91,32 +125,33 @@ const MontarPedidoForm = ({ onContinue ,onRetirarNaLoja }) => {
     setOpenPizzaDialog(false);
   };
 
-
-
-
-
   const handleRetirarNaLoja = () => {
-    // Passar os pedidos para o componente pai
-    onRetirarNaLoja(pedidos);
+    // Passar os pedidos e o payload para o componente pai
+    onRetirarNaLoja(pedidos, pedidoPayload);
   };
 
-
-
-
-
-
   const handleRemovePedido = (index) => {
+    // Remover o pedido da UI
     const newPedidos = [...pedidos];
     newPedidos.splice(index, 1);
     setPedidos(newPedidos);
+
+    // Remover o item correspondente do payload
+    const newItens = [...pedidoPayload.itens];
+    newItens.splice(index, 1);
+    setPedidoPayload({
+      ...pedidoPayload,
+      itens: newItens,
+    });
 
     // Mostrar mensagem de sucesso
     setSuccessMessage(true);
     setTimeout(() => setSuccessMessage(false), 3000);
   };
+
   const handleContinue = () => {
-    // Passar os pedidos para o componente pai
-    onContinue(pedidos);
+    // Passar os pedidos e o payload para o componente pai
+    onContinue(pedidos, pedidoPayload);
   };
 
   const handleBebidaSelect = (bebida) => {
@@ -129,6 +164,7 @@ const MontarPedidoForm = ({ onContinue ,onRetirarNaLoja }) => {
     newBebidas.splice(index, 1);
     setTempSelectedBebidas(newBebidas);
   };
+
   const handleRemovePizza = (index) => {
     // Se estamos removendo a primeira pizza e temos duas, a segunda se torna a primeira
     if (index === 0 && tempSelectedPizzas.length === 2) {
@@ -147,6 +183,18 @@ const MontarPedidoForm = ({ onContinue ,onRetirarNaLoja }) => {
 
     // Simular um atraso para mostrar o loading
     setTimeout(() => {
+      // Extrair os IDs das pizzas selecionadas para o payload
+      const pizzaIds = tempSelectedPizzas.map((pizza) => pizza.id);
+
+      // Criar o item no formato esperado pelo backend
+      const novoItem = {
+        produto: pizzaIds,
+        quantidade: 1,
+        tamanhoPizza: tamanho,
+        bordaRecheada: borda,
+      };
+
+      // Criar o pedido para exibição na UI
       const novoPedido = {
         id: Date.now(),
         tamanho,
@@ -156,7 +204,16 @@ const MontarPedidoForm = ({ onContinue ,onRetirarNaLoja }) => {
         total: calcularTotal(),
       };
 
+      // Atualizar o estado dos pedidos para a UI
       setPedidos([...pedidos, novoPedido]);
+
+      // Atualizar o payload para o backend
+      setPedidoPayload({
+        ...pedidoPayload,
+        itens: [...pedidoPayload.itens, novoItem],
+      });
+
+      // Limpar seleções temporárias
       setTempSelectedPizzas([]);
       setTempSelectedBebidas([]);
       setTamanho("");
@@ -168,8 +225,6 @@ const MontarPedidoForm = ({ onContinue ,onRetirarNaLoja }) => {
       setTimeout(() => setSuccessMessage(false), 3000);
     }, 800);
   };
-
-
 
   const calcularTotal = () => {
     const pizzasTotal = tempSelectedPizzas.reduce(
@@ -190,7 +245,21 @@ const MontarPedidoForm = ({ onContinue ,onRetirarNaLoja }) => {
   };
 
   if (loading) {
-    return <LoadingIndicator message="Carregando cardápio..." />;
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "50vh",
+        }}
+      >
+        <CircularProgress />
+        <Typography variant="h6" sx={{ ml: 2 }}>
+          Carregando cardápio...
+        </Typography>
+      </Box>
+    );
   }
 
   return (
@@ -466,7 +535,7 @@ const MontarPedidoForm = ({ onContinue ,onRetirarNaLoja }) => {
       <Dialog
         open={openPizzaDialog}
         onClose={() => setOpenPizzaDialog(false)}
-        maxWidth="sm"
+        maxWidth="md"
         fullWidth
       >
         <DialogTitle sx={{ display: "flex", alignItems: "center" }}>
@@ -481,22 +550,118 @@ const MontarPedidoForm = ({ onContinue ,onRetirarNaLoja }) => {
             <Close />
           </IconButton>
         </DialogTitle>
+
+        {/* Campo de pesquisa */}
+        <Box sx={{ px: 3, pt: 1, pb: 2 }}>
+          <TextField
+            fullWidth
+            variant="outlined"
+            label="Buscar por sabor ou ingredientes"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Search />
+                </InputAdornment>
+              ),
+              endAdornment: searchTerm && (
+                <InputAdornment position="end">
+                  <IconButton size="small" onClick={() => setSearchTerm("")}>
+                    <Clear />
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+        </Box>
+
         <DialogContent dividers>
-          <List sx={{ width: "100%" }}>
-            {pizzas.map((pizza, index) => (
-              <React.Fragment key={pizza.id}>
-                <ProdutoListItem
-                  produto={pizza}
-                  icon={<LocalPizza />}
-                  onClick={handlePizzaSelect}
-                  color="primary"
-                />
-                {index < pizzas.length - 1 && (
-                  <Divider variant="inset" component="li" />
-                )}
-              </React.Fragment>
-            ))}
-          </List>
+          {/* Pizzas Salgadas */}
+          <Typography
+            variant="h6"
+            sx={{
+              mb: 2,
+              mt: 1,
+              fontWeight: "bold",
+              color: "primary.main",
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            <LocalPizza sx={{ mr: 1 }} /> Pizzas Salgadas
+          </Typography>
+
+          {pizzasSalgadas.length > 0 ? (
+            <List sx={{ width: "100%" }}>
+              {pizzasSalgadas.map((pizza, index, filteredArray) => (
+                <React.Fragment key={pizza.id}>
+                  <ProdutoListItem
+                    produto={pizza}
+                    icon={<LocalPizza />}
+                    onClick={handlePizzaSelect}
+                    color="primary"
+                  />
+                  {index < filteredArray.length - 1 && (
+                    <Divider variant="inset" component="li" />
+                  )}
+                </React.Fragment>
+              ))}
+            </List>
+          ) : (
+            <Alert severity="info" sx={{ mb: 2 }}>
+              Nenhuma pizza salgada encontrada com os termos de busca.
+            </Alert>
+          )}
+
+          {/* Pizzas Doces */}
+          {pizzas.some((pizza) => pizza.categoriaProduto === "PIZZA_DOCE") && (
+            <>
+              <Typography
+                variant="h6"
+                sx={{
+                  mb: 2,
+                  mt: 3,
+                  fontWeight: "bold",
+                  color: "secondary.main",
+                  display: "flex",
+                  alignItems: "center",
+                }}
+              >
+                <LocalPizza sx={{ mr: 1 }} /> Pizzas Doces
+              </Typography>
+
+              {pizzasDoces.length > 0 ? (
+                <List sx={{ width: "100%" }}>
+                  {pizzasDoces.map((pizza, index, filteredArray) => (
+                    <React.Fragment key={pizza.id}>
+                      <ProdutoListItem
+                        produto={pizza}
+                        icon={<LocalPizza />}
+                        onClick={handlePizzaSelect}
+                        color="secondary"
+                      />
+                      {index < filteredArray.length - 1 && (
+                        <Divider variant="inset" component="li" />
+                      )}
+                    </React.Fragment>
+                  ))}
+                </List>
+              ) : (
+                <Alert severity="info">
+                  Nenhuma pizza doce encontrada com os termos de busca.
+                </Alert>
+              )}
+            </>
+          )}
+
+          {pizzasSalgadas.length === 0 && pizzasDoces.length === 0 && (
+            <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
+              <Typography variant="h6" color="text.secondary">
+                Nenhuma pizza encontrada. Tente outros termos de busca.
+              </Typography>
+            </Box>
+          )}
         </DialogContent>
       </Dialog>
 
@@ -504,7 +669,7 @@ const MontarPedidoForm = ({ onContinue ,onRetirarNaLoja }) => {
       <Dialog
         open={openBebidaDialog}
         onClose={() => setOpenBebidaDialog(false)}
-        maxWidth="sm"
+        maxWidth="md"
         fullWidth
       >
         <DialogTitle sx={{ display: "flex", alignItems: "center" }}>
@@ -546,9 +711,9 @@ const MontarPedidoForm = ({ onContinue ,onRetirarNaLoja }) => {
           </Button>
         </DialogActions>
       </Dialog>
-
     </Box>
   );
 };
 
 export default MontarPedidoForm;
+

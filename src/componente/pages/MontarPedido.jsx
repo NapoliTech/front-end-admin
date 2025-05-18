@@ -9,27 +9,45 @@ import {
   StepLabel,
   Alert,
   Button,
+  Snackbar,
 } from "@mui/material";
 import { Store, DirectionsWalk } from "@mui/icons-material";
 import MontarPedidoForm from "../organismo/MontarPedidoForm";
 import CredenciaisForm from "../organismo/CredenciaisForm";
+import PedidoConfirmado from "../moleculas/PedidoConfirmado";
+import { pedidoService } from "../../services/pedidoService";
 
 const steps = ["Montar Pedido", "Informações de Entrega", "Confirmação"];
 
-const MontarPedido = () => {
+const MontarPedido = ({ onNavigate }) => {
   const [activeStep, setActiveStep] = useState(0);
   const [pedidos, setPedidos] = useState([]);
+  const [pedidoPayload, setPedidoPayload] = useState({
+    clienteId: null,
+    itens: [],
+  });
   const [pedidoFinalizado, setPedidoFinalizado] = useState(null);
   const [error, setError] = useState("");
   const [tipoEntrega, setTipoEntrega] = useState(null); // 'entrega' ou 'retirada'
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
 
-  const handleContinue = (pedidosSelecionados) => {
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
+  };
+
+  const handleContinue = (pedidosSelecionados, payload) => {
     setPedidos(pedidosSelecionados);
+    setPedidoPayload(payload);
     setActiveStep(1);
   };
 
-  const handleRetirarNaLoja = (pedidosSelecionados) => {
+  const handleRetirarNaLoja = (pedidosSelecionados, payload) => {
     setPedidos(pedidosSelecionados);
+    setPedidoPayload(payload);
     setTipoEntrega("retirada");
 
     // Criar um pedido finalizado para retirada na loja
@@ -49,6 +67,7 @@ const MontarPedido = () => {
       status: "AGUARDANDO PREPARO",
       dataPedido: new Date().toISOString(),
       previsaoRetirada: "20-30 minutos",
+      payload: payload, // Armazenar o payload para envio posterior
     };
 
     setPedidoFinalizado(pedidoRetirada);
@@ -59,20 +78,37 @@ const MontarPedido = () => {
     setActiveStep(0);
   };
 
-  const handleFinish = async (dadosPedido) => {
+  const handleFinish = async (dadosCliente) => {
     try {
+      // Atualizar o payload com o ID do cliente
+      const payloadCompleto = {
+        ...pedidoPayload,
+        clienteId: dadosCliente.id || 1, // Usar o ID do cliente ou um valor padrão
+      };
+
       // Aqui você pode fazer a chamada real para a API
-      // const response = await pedidoService.finalizarPedido(dadosPedido);
+      // const response = await pedidoService.finalizarPedido(payloadCompleto);
       // setPedidoFinalizado(response.data);
 
       // Por enquanto, vamos apenas simular
       setPedidoFinalizado({
-        ...dadosPedido,
+        ...dadosCliente,
         tipoEntrega: "entrega",
         numeroPedido: `PED-${Math.floor(Math.random() * 10000)}`,
         status: "CONFIRMADO",
         dataPedido: new Date().toISOString(),
         previsaoEntrega: "30-45 minutos",
+        itens: pedidos.map((pedido) => ({
+          tamanho: pedido.tamanho,
+          borda: pedido.borda,
+          pizzas: pedido.pizzas,
+          bebidas: pedido.bebidas,
+          valorTotal: pedido.total,
+        })),
+        valorTotal: pedidos
+          .reduce((acc, pedido) => acc + parseFloat(pedido.total), 0)
+          .toFixed(2),
+        payload: payloadCompleto, // Armazenar o payload para envio posterior
       });
 
       setActiveStep(2);
@@ -86,18 +122,37 @@ const MontarPedido = () => {
 
   const handleGerarPedido = async () => {
     try {
-      // Aqui você faria a chamada real para a API para gerar o pedido
-      // const response = await pedidoService.gerarPedido(pedidoFinalizado);
+      const response = await pedidoService.gerarPedido(
+        pedidoFinalizado.payload
+      );
 
-      // Simulando sucesso
-      alert(`Pedido ${pedidoFinalizado.numeroPedido} gerado com sucesso!`);
-
-      // Redirecionar para a lista de pedidos ou dashboard
-      // navigate('/pedidos');
+      console.log(response);
+      return true;
     } catch (error) {
       console.error("Erro ao gerar pedido:", error);
-      setError("Não foi possível gerar o pedido. Por favor, tente novamente.");
+      setSnackbar({
+        open: true,
+        message: "Não foi possível gerar o pedido. Por favor, tente novamente.",
+        severity: "error",
+      });
+      return false;
     }
+  };
+  
+  const handleNavigateToPedidos = (message) => {
+    // Mostrar Snackbar com a mensagem
+    setSnackbar({
+      open: true,
+      message: message || "Redirecionando para a lista de pedidos...",
+      severity: "success",
+    });
+
+    // Delay de 1 segundo antes de navegar
+    setTimeout(() => {
+      if (onNavigate) {
+        onNavigate("pedidos");
+      }
+    }, 1000);
   };
 
   const renderStepContent = () => {
@@ -116,140 +171,18 @@ const MontarPedido = () => {
             pedidos={pedidos}
             onBack={handleBack}
             onFinish={handleFinish}
-            onRetirarNaLoja={() => handleRetirarNaLoja(pedidos)}
+            onRetirarNaLoja={() => handleRetirarNaLoja(pedidos, pedidoPayload)}
           />
         );
 
       case 2:
         return (
-          <Box sx={{ maxWidth: '100%', mx: "auto", mt: 4 }}>
-            <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
-              <Typography variant="h4" gutterBottom color="primary">
-                {tipoEntrega === "retirada"
-                  ? "Pedido para Retirada"
-                  : "Pedido Confirmado!"}
-              </Typography>
-
-              <Typography variant="h6" gutterBottom>
-                Número do Pedido: {pedidoFinalizado?.numeroPedido}
-              </Typography>
-
-              <Box
-                sx={{
-                  my: 3,
-                  p: 2,
-                  bgcolor: "background.default",
-                  borderRadius: 2,
-                }}
-              >
-                <Typography variant="subtitle1" gutterBottom fontWeight="bold">
-                  Detalhes do Pedido:
-                </Typography>
-
-                {tipoEntrega === "retirada" ? (
-                  <Alert severity="info" sx={{ mb: 2 }}>
-                    <Typography variant="body1">
-                      <strong>Tipo:</strong> Retirada na Loja
-                    </Typography>
-                    <Typography variant="body1">
-                      <strong>Tempo estimado para retirada:</strong>{" "}
-                      {pedidoFinalizado?.previsaoRetirada}
-                    </Typography>
-                  </Alert>
-                ) : (
-                  <Box sx={{ mb: 2 }}>
-                    <Typography variant="body1">
-                      <strong>Cliente:</strong>{" "}
-                      {pedidoFinalizado?.cliente?.nome}
-                    </Typography>
-                    <Typography variant="body1">
-                      <strong>Telefone:</strong>{" "}
-                      {pedidoFinalizado?.cliente?.telefone}
-                    </Typography>
-                    <Typography variant="body1">
-                      <strong>Endereço:</strong>{" "}
-                      {pedidoFinalizado?.endereco?.logradouro}
-                      {pedidoFinalizado?.endereco?.complemento &&
-                        `, ${pedidoFinalizado.endereco.complemento}`}
-                    </Typography>
-                    <Typography variant="body1">
-                      <strong>Tempo estimado de entrega:</strong>{" "}
-                      {pedidoFinalizado?.previsaoEntrega}
-                    </Typography>
-                  </Box>
-                )}
-
-                <Typography variant="subtitle1" gutterBottom fontWeight="bold">
-                  Itens:
-                </Typography>
-
-                {pedidoFinalizado?.itens?.map((item, index) => (
-                  <Box
-                    key={index}
-                    sx={{
-                      mb: 2,
-                      p: 2,
-                      bgcolor: "background.paper",
-                      borderRadius: 1,
-                    }}
-                  >
-                    <Typography variant="subtitle2" gutterBottom>
-                      Pedido {index + 1} - {item.tamanho} - Borda: {item.borda}
-                    </Typography>
-
-                    {item.pizzas?.map((pizza, pizzaIndex) => (
-                      <Typography key={pizzaIndex} variant="body2">
-                        •{" "}
-                        {pizzaIndex === 0
-                          ? "Primeira metade"
-                          : "Segunda metade"}
-                        : {pizza.nome} - R$ {pizza.preco}
-                      </Typography>
-                    ))}
-
-                    {item.bebidas?.length > 0 && (
-                      <>
-                        <Typography
-                          variant="body2"
-                          sx={{ mt: 1, fontWeight: "medium" }}
-                        >
-                          Bebidas:
-                        </Typography>
-                        {item.bebidas.map((bebida, bebidaIndex) => (
-                          <Typography key={bebidaIndex} variant="body2">
-                            • {bebida.nome} - R$ {bebida.preco}
-                          </Typography>
-                        ))}
-                      </>
-                    )}
-
-                    <Typography
-                      variant="body2"
-                      sx={{ mt: 1, fontWeight: "bold" }}
-                    >
-                      Subtotal: R$ {item.valorTotal}
-                    </Typography>
-                  </Box>
-                ))}
-
-                <Typography variant="h6" align="right" sx={{ mt: 2 }}>
-                  Valor Total: R$ {pedidoFinalizado?.valorTotal}
-                </Typography>
-              </Box>
-
-              <Box sx={{ mt: 4, display: "flex", justifyContent: "center" }}>
-                <Button
-                  variant="contained"
-                  color="success"
-                  size="large"
-                  onClick={handleGerarPedido}
-                  sx={{ px: 4, py: 1.5 }}
-                >
-                  Gerar Pedido
-                </Button>
-              </Box>
-            </Paper>
-          </Box>
+          <PedidoConfirmado
+            pedidoFinalizado={pedidoFinalizado}
+            tipoEntrega={tipoEntrega}
+            onGerarPedido={handleGerarPedido}
+            onNavigateToPedidos={handleNavigateToPedidos}
+          />
         );
       default:
         return null;
@@ -279,6 +212,23 @@ const MontarPedido = () => {
 
         <Box sx={{ mt: 3 }}>{renderStepContent()}</Box>
       </Paper>
+
+      {/* Snackbar para mensagens de sucesso/erro */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snackbar.severity}
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };
