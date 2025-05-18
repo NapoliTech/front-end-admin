@@ -1,11 +1,13 @@
-import './App.css';
-
-import { RouterProvider } from  'react-router-dom'
-import { routes } from './routes';
+import React from "react";
+import { ThemeProvider } from "./componente/contexts/ThemeContext";
+import { RouterProvider } from "react-router-dom";
+import { routes } from "./routes";
 
 function App() {
   return (
-    <RouterProvider router={routes}/>
+    <ThemeProvider>
+      <RouterProvider router={routes} />
+    </ThemeProvider>
   );
 }
 

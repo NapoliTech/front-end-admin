@@ -70,6 +70,7 @@ const BuscarUsuarioForm = ({ onUsuarioEncontrado, onSwitchToNovoUsuario }) => {
   };
 
   const handleConfirmarUsuario = () => {
+    console.log(usuarioEncontrado);
     // Mapear os dados do usuário para o formato esperado pelo componente pai
     const usuarioFormatado = {
       id: usuarioEncontrado.idUsuario,

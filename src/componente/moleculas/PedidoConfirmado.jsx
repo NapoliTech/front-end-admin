@@ -39,11 +39,9 @@ const PedidoConfirmado = ({
   const handleGerarPedido = async () => {
     setLoading(true);
     try {
-      // Chama a função de gerar pedido do componente pai
       const success = await onGerarPedido();
 
       if (success) {
-        // Abre o diálogo de confirmação
         setDialogOpen(true);
       }
     } catch (error) {

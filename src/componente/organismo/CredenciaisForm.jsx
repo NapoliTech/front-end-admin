@@ -195,7 +195,6 @@ const CredenciaisForm = ({ pedidos, onBack, onFinish, onRetirarNaLoja }) => {
     );
   }
 
-  // Renderização para buscar usuário existente
   if (tipoUsuario === "existente") {
     return (
       <Box sx={{ maxWidth: "100%", mx: "auto" }}>

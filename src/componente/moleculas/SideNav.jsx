@@ -17,10 +17,14 @@ import {
   ChevronLeft as ChevronLeftIcon,
   Menu as MenuIcon,
   AddShoppingCart as MontarPedidoIcon,
+  Brightness4,
+  Brightness7,
 } from "@mui/icons-material";
+import { useTheme } from "../contexts/ThemeContext";
 
 const SideNav = ({ onMenuClick }) => {
   const [open, setOpen] = useState(true);
+  const { isDarkMode, toggleTheme } = useTheme();
 
   const handleDrawer = () => {
     setOpen(!open);
@@ -35,63 +39,135 @@ const SideNav = ({ onMenuClick }) => {
         "& .MuiDrawer-paper": {
           width: open ? 240 : "64px",
           boxSizing: "border-box",
-          backgroundColor: "#f5f5f5",
           transition: "width 0.3s",
           overflowX: "hidden",
           whiteSpace: "nowrap",
+          bgcolor: isDarkMode ? "background.default" : "background.paper",
+          color: isDarkMode ? "text.primary" : "text.primary",
         },
       }}
     >
-      <Box sx={{ mt: 8 }}>
-        <IconButton onClick={handleDrawer} sx={{ ml: open ? 1 : 0.5 }}>
-          {open ? <ChevronLeftIcon /> : <MenuIcon />}
-        </IconButton>
-        <List>
-          <ListItemButton
-            onClick={() => onMenuClick("dashboard")}
-            sx={{ "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" } }}
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          height: "100%",
+        }}
+      >
+        <Box sx={{ mt: 8 }}>
+          <IconButton
+            onClick={handleDrawer}
+            sx={{
+              ml: open ? 1 : 0.5,
+              color: isDarkMode ? "text.primary" : "text.primary",
+            }}
           >
-            <ListItemIcon>
-              <DashboardIcon />
-            </ListItemIcon>
-            {open && <ListItemText primary="Dashboard" />}
-          </ListItemButton>
+            {open ? <ChevronLeftIcon /> : <MenuIcon />}
+          </IconButton>
+          <List>
+            <ListItemButton
+              onClick={() => onMenuClick("dashboard")}
+              sx={{
+                "&:hover": {
+                  backgroundColor: isDarkMode
+                    ? "action.hover"
+                    : "rgba(0, 0, 0, 0.04)",
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: "inherit" }}>
+                <DashboardIcon />
+              </ListItemIcon>
+              {open && <ListItemText primary="Dashboard" />}
+            </ListItemButton>
+            <ListItemButton
+              onClick={() => onMenuClick("pedidos")}
+              sx={{
+                "&:hover": {
+                  backgroundColor: isDarkMode
+                    ? "action.hover"
+                    : "rgba(0, 0, 0, 0.04)",
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: "inherit" }}>
+                <AssignmentIcon />
+              </ListItemIcon>
+              {open && <ListItemText primary="Pedidos Ativos" />}
+            </ListItemButton>
+            <ListItemButton
+              onClick={() => onMenuClick("montarPedido")}
+              sx={{
+                "&:hover": {
+                  backgroundColor: isDarkMode
+                    ? "action.hover"
+                    : "rgba(0, 0, 0, 0.04)",
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: "inherit" }}>
+                <MontarPedidoIcon />
+              </ListItemIcon>
+              {open && <ListItemText primary="Montar Pedido" />}
+            </ListItemButton>
+            <Divider />
+            <ListItemButton
+              sx={{
+                "&:hover": {
+                  backgroundColor: isDarkMode
+                    ? "action.hover"
+                    : "rgba(0, 0, 0, 0.04)",
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: "inherit" }}>
+                <HistoryIcon />
+              </ListItemIcon>
+              {open && <ListItemText primary="Histórico" />}
+            </ListItemButton>
+            <ListItemButton
+              onClick={() => onMenuClick("configuracoes")}
+              sx={{
+                "&:hover": {
+                  backgroundColor: isDarkMode
+                    ? "action.hover"
+                    : "rgba(0, 0, 0, 0.04)",
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: "inherit" }}>
+                <SettingsIcon />
+              </ListItemIcon>
+              {open && <ListItemText primary="Configurações" />}
+            </ListItemButton>
+          </List>
+        </Box>
+
+        <Box
+          sx={{
+            mt: "auto",
+            mb: 2,
+            display: "flex",
+            justifyContent: "center",
+          }}
+        >
           <ListItemButton
-            onClick={() => onMenuClick("pedidos")}
-            sx={{ "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" } }}
+            onClick={toggleTheme}
+            sx={{
+              "&:hover": {
+                backgroundColor: isDarkMode
+                  ? "action.hover"
+                  : "rgba(0, 0, 0, 0.04)",
+              },
+              justifyContent: "center",
+            }}
           >
-            <ListItemIcon>
-              <AssignmentIcon />
+            <ListItemIcon sx={{ color: "inherit", minWidth: 0 }}>
+              {isDarkMode ? <Brightness7 /> : <Brightness4 />}
             </ListItemIcon>
-            {open && <ListItemText primary="Pedidos Ativos" />}
+            {open && <ListItemText primary="Alternar Tema" sx={{ ml: 2 }} />}
           </ListItemButton>
-          <ListItemButton
-            onClick={() => onMenuClick("montarPedido")}
-            sx={{ "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" } }}
-          >
-            <ListItemIcon>
-              <MontarPedidoIcon />
-            </ListItemIcon>
-            {open && <ListItemText primary="Montar Pedido" />}
-          </ListItemButton>
-          <Divider />
-          <ListItemButton
-            sx={{ "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" } }}
-          >
-            <ListItemIcon>
-              <HistoryIcon />
-            </ListItemIcon>
-            {open && <ListItemText primary="Histórico" />}
-          </ListItemButton>
-          <ListItemButton
-            sx={{ "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" } }}
-          >
-            <ListItemIcon>
-              <SettingsIcon />
-            </ListItemIcon>
-            {open && <ListItemText primary="Configurações" />}
-          </ListItemButton>
-        </List>
+        </Box>
       </Box>
     </Drawer>
   );

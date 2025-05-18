@@ -5,6 +5,7 @@ import DashboardCards from "../moleculas/DashboardCards";
 import DashboardCharts from "./DashboardCharts";
 import MontarPedido from "../pages/MontarPedido";
 import Pedidos from "../pages/Pedidos";
+import ConfiguracoesScreen from "../moleculas/ConfiguracoesScreen";
 
 const AtendimentoMain = () => {
   const [currentView, setCurrentView] = useState("dashboard");
@@ -57,6 +58,7 @@ const AtendimentoMain = () => {
         {currentView === "montarPedido" && (
           <MontarPedido onNavigate={handleMenuClick} />
         )}
+        {currentView === "configuracoes" && <ConfiguracoesScreen />}
       </Box>
     </Box>
   );
