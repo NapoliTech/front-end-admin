@@ -44,7 +44,6 @@ const Pedidos = () => {
     carregarPedidos();
   }, []);
 
-  // Efeito para filtrar pedidos quando os parâmetros de busca mudam
   useEffect(() => {
     if (!searchParams.term.trim()) {
       setFilteredPedidos(allPedidos);
@@ -55,7 +54,6 @@ const Pedidos = () => {
     const hasFilter = searchParams.filters.length > 0;
 
     const filtered = allPedidos.filter((pedido) => {
-      // Se não há filtros ativos, busca em todos os campos
       if (!hasFilter) {
         return (
           pedido.id.toString().includes(term) ||
@@ -65,7 +63,6 @@ const Pedidos = () => {
         );
       }
 
-      // Se há filtros ativos, busca apenas nos campos filtrados
       return searchParams.filters.some((filter) => {
         switch (filter) {
           case "codigo":
@@ -73,7 +70,6 @@ const Pedidos = () => {
           case "cliente":
             return pedido.nomeCliente.toLowerCase().includes(term);
           case "status": {
-            // Mapear termos comuns para os status do sistema
             const statusTerms = {
               recebido: "RECEBIDO",
               preparo: "EM_PREPARO",
@@ -81,21 +77,17 @@ const Pedidos = () => {
               entregue: "ENTREGUE",
             };
 
-            // Verificar se o termo de busca corresponde a algum status
             for (const [key, value] of Object.entries(statusTerms)) {
               if (key.includes(term)) {
                 return pedido.statusPedido === value;
               }
             }
 
-            // Verificar diretamente se o status contém o termo
             return pedido.statusPedido.toLowerCase().includes(term);
           }
           case "entrega":
             return pedido.tipoEntrega.toLowerCase().includes(term);
           case "data":
-            // Aqui você implementaria a lógica para filtrar por data
-            // se tiver um campo de data no pedido
             return false;
           default:
             return false;

@@ -8,6 +8,7 @@ export const pedidosAtivos = {
   listarPedidosAtivos: async () => {
     try {
       const response = await httpClient.get("/api/pedidos");
+      console.log(response.data);
       return response.data;
     } catch (error) {
       console.error("Erro ao listar pedidos:", error);
@@ -44,21 +45,21 @@ export const pedidosAtivos = {
    * @param {string} novoStatus - Novo status do pedido
    * @returns {Promise} Promise com os dados do pedido atualizado
    */
-  atualizarStatusPedido: async (id, novoStatus) => {
-    try {
-      const response = await httpClient.patch(`/api/pedidos/${id}/status`, {
-        status: novoStatus,
-      });
-      return response.data;
-    } catch (error) {
-      console.error(`Erro ao atualizar status do pedido ${id}:`, error);
-      throw new Error(
-        `Falha ao atualizar status: ${
-          error.response?.data?.message || error.message
-        }`
-      );
-    }
-  },
+  // atualizarStatusPedido: async (id, novoStatus) => {
+  //   try {
+  //     const response = await httpClient.patch(`/api/pedidos/${id}/status`, {
+  //       status: novoStatus,
+  //     });
+  //     return response.data;
+  //   } catch (error) {
+  //     console.error(`Erro ao atualizar status do pedido ${id}:`, error);
+  //     throw new Error(
+  //       `Falha ao atualizar status: ${
+  //         error.response?.data?.message || error.message
+  //       }`
+  //     );
+  //   }
+  // },
 
   /**
    * Cancela um pedido
@@ -80,5 +81,33 @@ export const pedidosAtivos = {
         }`
       );
     }
+  },
+
+  atualizarStatusPedido: async (pedidoId, novoStatus) => {
+    // Simulação do comportamento do backend
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({
+          success: true,
+          message: "Status atualizado com sucesso",
+          data: {
+            id: pedidoId,
+            status: novoStatus,
+          },
+        });
+      }, 500); // Simula delay da rede
+    });
+
+    // Código pronto para quando houver backend
+    /* 
+    try {
+      const response = await httpClient.put(`/api/pedidos/${pedidoId}/status`, {
+        status: novoStatus
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(`Falha ao atualizar status: ${error.response?.data?.message || error.message}`);
+    }
+    */
   },
 };

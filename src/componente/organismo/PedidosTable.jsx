@@ -28,7 +28,7 @@ const PedidosTable = ({ pedidos, onSearch }) => {
           }}
         >
           {pedidos.map((pedido) => (
-            <PedidoCardTelaAtivos key={pedido.id} pedido={pedido} />
+            <PedidoCardTelaAtivos key={pedido.id} pedido={pedido}  />
           ))}
         </Box>
       )}
