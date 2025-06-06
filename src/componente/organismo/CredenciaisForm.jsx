@@ -26,6 +26,7 @@ const CredenciaisForm = ({ pedidos, onBack, onFinish, onRetirarNaLoja }) => {
   const [usuarioSelecionado, setUsuarioSelecionado] = useState(null);
 
   const handleUsuarioEncontrado = (usuario) => {
+    console.log("Usuário encontrado:", usuario); // <-- Adicionado para debug
     setUsuarioSelecionado(usuario);
     setTipoUsuario("confirmado");
   };
@@ -280,13 +281,11 @@ const CredenciaisForm = ({ pedidos, onBack, onFinish, onRetirarNaLoja }) => {
               Confirmar Informações
             </Typography>
           </Box>
-
           {error && (
             <Alert severity="error" sx={{ mb: 3 }}>
               {error}
             </Alert>
           )}
-
           {/* Usando o componente molecular PedidoResumoCollapse */}
           <PedidoResumoCollapse
             pedidos={pedidos}
@@ -294,9 +293,7 @@ const CredenciaisForm = ({ pedidos, onBack, onFinish, onRetirarNaLoja }) => {
             setShowPedidoSummary={setShowPedidoSummary}
             calcularTotalPedidos={calcularTotalPedidos}
           />
-
           <Divider sx={{ my: 3 }} />
-
           {/* Usando o componente molecular NovoEnderecoForm em modo de confirmação */}
           <NovoEnderecoForm
             onSubmit={handleSubmitEnderecoConfirmado}

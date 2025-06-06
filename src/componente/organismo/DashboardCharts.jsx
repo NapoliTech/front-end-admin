@@ -4,7 +4,12 @@ import LineChart from "../moleculas/LineChart";
 import BarChart from "../moleculas/BarChart";
 import DistributionChart from "../moleculas/DistributionChart";
 
-const DashboardCharts = ({ weeklyData, distributionData, loading }) => {
+const DashboardCharts = ({
+  weeklyData,
+  distributionData,
+  ultimosSeteDias,
+  loading,
+}) => {
   const theme = useTheme();
   const isMediumScreen = useMediaQuery("(max-width:1366px)");
 
@@ -13,9 +18,8 @@ const DashboardCharts = ({ weeklyData, distributionData, loading }) => {
       sx={{
         display: "flex",
         flexDirection: "column",
-        gap: "24px", // Aumentado de 16px para 24px
+        gap: "24px",
         mt: 5,
-        // maxHeight: '210vh', 
         height: "calc(100vh - 180px)",
         width: "100%",
         overflow: "auto",
@@ -24,8 +28,8 @@ const DashboardCharts = ({ weeklyData, distributionData, loading }) => {
       <Box
         sx={{
           display: "flex",
-          gap: "24px", // Aumentado de 16px para 24px
-          height: "calc(50% - 12px)", // Ajustado para considerar o gap
+          gap: "24px",
+          height: "calc(50% - 12px)",
           width: "100%",
         }}
       >
@@ -60,12 +64,11 @@ const DashboardCharts = ({ weeklyData, distributionData, loading }) => {
           />
         </Paper>
       </Box>
-
       <Box
         sx={{
           display: "flex",
-          gap: "24px", // Aumentado de 16px para 24px
-          height: "calc(50% - 12px)", // Ajustado para considerar o gap
+          gap: "24px",
+          height: "calc(50% - 12px)",
           width: "100%",
         }}
       >
@@ -79,7 +82,7 @@ const DashboardCharts = ({ weeklyData, distributionData, loading }) => {
           }}
         >
           <BarChart
-            data={weeklyData}
+            data={distributionData}
             loading={loading}
             title="Vendas por Categoria"
           />
@@ -94,9 +97,9 @@ const DashboardCharts = ({ weeklyData, distributionData, loading }) => {
           }}
         >
           <BarChart
-            data={weeklyData}
+            data={ultimosSeteDias}
             loading={loading}
-            title="Vendas por Período"
+            title="Vendas dos Últimos 7 Dias"
           />
         </Paper>
       </Box>

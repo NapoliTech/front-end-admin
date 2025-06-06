@@ -5,7 +5,7 @@ export const usuarioService = {
   buscarUsuario: async (email) => {
     try {
       // Usando ID mocado 1 conforme solicitado
-      const response = await httpClient.get(`/api/2`);
+      const response = await httpClient.get(`/api/enderecos/email/${email}`);
       console.log(response.data);
       return response.data;
     } catch (error) {

@@ -35,6 +35,12 @@ const MontarPedido = ({ onNavigate }) => {
     severity: "success",
   });
 
+
+  console.log("MontarPedido - pedidos:", pedidos);
+  console.log("MontarPedido - pedidoPayload:", pedidoPayload);
+  console.log("MontarPedido - pedidoFinalizado:", pedidoFinalizado);
+
+
   const handleCloseSnackbar = () => {
     setSnackbar({ ...snackbar, open: false });
   };
@@ -79,18 +85,15 @@ const MontarPedido = ({ onNavigate }) => {
   };
 
   const handleFinish = async (dadosCliente) => {
+    console.log("handleFinish - dadosCliente recebidos:", dadosCliente.cliente.id);
     try {
       // Atualizar o payload com o ID do cliente
       const payloadCompleto = {
         ...pedidoPayload,
-        clienteId: dadosCliente.id || 1, // Usar o ID do cliente ou um valor padrão
+        clienteId: dadosCliente.cliente.id, // Usar o ID do cliente ou um valor padrão
       };
-
-      // Aqui você pode fazer a chamada real para a API
-      // const response = await pedidoService.finalizarPedido(payloadCompleto);
-      // setPedidoFinalizado(response.data);
-
-      // Por enquanto, vamos apenas simular
+      setPedidoPayload(payloadCompleto);
+      
       setPedidoFinalizado({
         ...dadosCliente,
         tipoEntrega: "entrega",

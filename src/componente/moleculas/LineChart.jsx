@@ -19,7 +19,7 @@ const LineChart = ({ data, loading, title }) => {
         <ResponsiveContainer width="100%" height="100%">
           <RechartsLineChart data={data}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
+            <XAxis dataKey="mes" />
             <YAxis />
             <Tooltip />
             <Line type="monotone" dataKey="valor" stroke="#8884d8" />

@@ -51,7 +51,7 @@ const BuscarUsuarioForm = ({ onUsuarioEncontrado, onSwitchToNovoUsuario }) => {
       console.log("Resposta completa:", response); // Para debug
 
       // Acessar o objeto usuario dentro da resposta
-      const usuario = response.usuario;
+      const usuario = response;
 
       if (usuario) {
         console.log("Dados do usuário extraídos:", usuario);
@@ -73,10 +73,10 @@ const BuscarUsuarioForm = ({ onUsuarioEncontrado, onSwitchToNovoUsuario }) => {
     console.log(usuarioEncontrado);
     // Mapear os dados do usuário para o formato esperado pelo componente pai
     const usuarioFormatado = {
-      id: usuarioEncontrado.idUsuario,
-      nome: usuarioEncontrado.nome,
-      email: usuarioEncontrado.email,
-      telefone: usuarioEncontrado.telefone,
+      id: usuarioEncontrado.usuario.idUsuario,
+      nome: usuarioEncontrado.usuario.nome,
+      email: usuarioEncontrado.usuario.email,
+      telefone: usuarioEncontrado.usuario.telefone,
       endereco: {
         logradouro: usuarioEncontrado.endereco
           ? `${usuarioEncontrado.endereco.rua}, ${usuarioEncontrado.endereco.numero} - ${usuarioEncontrado.endereco.bairro}`
@@ -244,21 +244,21 @@ const BuscarUsuarioForm = ({ onUsuarioEncontrado, onSwitchToNovoUsuario }) => {
                   <Box sx={{ display: "flex", alignItems: "center", mb: 1.5 }}>
                     <Email color="primary" sx={{ mr: 1.5, fontSize: 20 }} />
                     <Typography variant="body2">
-                      {usuarioEncontrado.email}
+                      {usuarioEncontrado.usuario.email}
                     </Typography>
                   </Box>
 
                   <Box sx={{ display: "flex", alignItems: "center", mb: 1.5 }}>
                     <Phone color="primary" sx={{ mr: 1.5, fontSize: 20 }} />
                     <Typography variant="body2">
-                      {usuarioEncontrado.telefone}
+                      {usuarioEncontrado.usuario.telefone}
                     </Typography>
                   </Box>
 
                   <Box sx={{ display: "flex", alignItems: "center" }}>
                     <Badge color="primary" sx={{ mr: 1.5, fontSize: 20 }} />
                     <Typography variant="body2">
-                      {usuarioEncontrado.cpf}
+                      {usuarioEncontrado.usuario.cpf}
                     </Typography>
                   </Box>
                 </Paper>

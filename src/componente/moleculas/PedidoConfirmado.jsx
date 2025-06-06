@@ -194,7 +194,7 @@ const PedidoConfirmado = ({
                 sx={{ fontWeight: "bold", mb: 1 }}
               >
                 <Person sx={{ mr: 1, verticalAlign: "middle" }} />
-                Cliente: {pedidoFinalizado?.cliente?.nome}
+                Cliente: {pedidoFinalizado?.cliente?.id}
               </Typography>
               <Typography variant="body1" sx={{ mb: 1 }}>
                 <Phone sx={{ mr: 1, verticalAlign: "middle", fontSize: 20 }} />
