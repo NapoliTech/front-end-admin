@@ -29,13 +29,7 @@ const DashboardCharts = ({ weeklyData, distributionData, loading }) => {
             title="Faturamento Anual"
           />
         </Box>
-        <Box sx={{ width: "50%" }}>
-          <DistributionChart
-            data={distributionData}
-            loading={loading}
-            title="Distribuição de Vendas"
-          />
-        </Box>
+
       </Box>
 
       <Box

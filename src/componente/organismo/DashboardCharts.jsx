@@ -42,51 +42,13 @@ const DashboardCharts = ({
             flexDirection: "column",
           }}
         >
-          <LineChart
-            data={weeklyData}
-            loading={loading}
-            title="Faturamento Anual"
-          />
-        </Paper>
-        <Paper
-          sx={{
-            width: "50%",
-            height: "100%",
-            p: isMediumScreen ? 1.5 : 2,
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
-          <DistributionChart
-            data={distributionData}
-            loading={loading}
-            title="Distribuição de Vendas"
-          />
-        </Paper>
-      </Box>
-      <Box
-        sx={{
-          display: "flex",
-          gap: "24px",
-          height: "calc(50% - 12px)",
-          width: "100%",
-        }}
-      >
-        <Paper
-          sx={{
-            width: "50%",
-            height: "100%",
-            p: isMediumScreen ? 1.5 : 2,
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
           <BarChart
             data={distributionData}
             loading={loading}
             title="Vendas por Categoria"
           />
         </Paper>
+
         <Paper
           sx={{
             width: "50%",
@@ -100,6 +62,30 @@ const DashboardCharts = ({
             data={ultimosSeteDias}
             loading={loading}
             title="Vendas dos Últimos 7 Dias"
+          />
+        </Paper>
+      </Box>
+      <Box
+        sx={{
+          display: "flex",
+          gap: "24px",
+          height: "calc(50% - 12px)",
+          width: "100%",
+        }}
+      >
+        <Paper
+          sx={{
+            width: "100%",
+            height: "100%",
+            p: isMediumScreen ? 1.5 : 2,
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          <LineChart
+            data={weeklyData}
+            loading={loading}
+            title="Faturamento Anual"
           />
         </Paper>
       </Box>
