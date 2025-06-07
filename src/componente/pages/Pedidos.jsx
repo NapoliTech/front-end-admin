@@ -56,19 +56,19 @@ const Pedidos = () => {
     const filtered = allPedidos.filter((pedido) => {
       if (!hasFilter) {
         return (
-          pedido.id.toString().includes(term) ||
-          pedido.nomeCliente.toLowerCase().includes(term) ||
-          pedido.statusPedido.toLowerCase().includes(term) ||
-          pedido.tipoEntrega.toLowerCase().includes(term)
+          (pedido.id?.toString() || "").includes(term) ||
+          (pedido.nomeCliente || "").toLowerCase().includes(term) ||
+          (pedido.statusPedido || "").toLowerCase().includes(term) ||
+          (pedido.tipoEntrega || "").toLowerCase().includes(term)
         );
       }
 
       return searchParams.filters.some((filter) => {
         switch (filter) {
           case "codigo":
-            return pedido.id.toString().includes(term);
+            return (pedido.id?.toString() || "").includes(term);
           case "cliente":
-            return pedido.nomeCliente.toLowerCase().includes(term);
+            return (pedido.nomeCliente || "").toLowerCase().includes(term);
           case "status": {
             const statusTerms = {
               recebido: "RECEBIDO",
@@ -83,10 +83,10 @@ const Pedidos = () => {
               }
             }
 
-            return pedido.statusPedido.toLowerCase().includes(term);
+            return (pedido.statusPedido || "").toLowerCase().includes(term);
           }
           case "entrega":
-            return pedido.tipoEntrega.toLowerCase().includes(term);
+            return (pedido.tipoEntrega || "").toLowerCase().includes(term);
           case "data":
             return false;
           default:

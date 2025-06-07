@@ -43,55 +43,52 @@ const BuscarUsuarioForm = ({ onUsuarioEncontrado, onSwitchToNovoUsuario }) => {
 
     setLoading(true);
     setError("");
+    setUsuarioEncontrado(null);
 
     try {
-      // Usar o serviço existente para buscar o usuário
       const response = await usuarioService.buscarUsuario(email);
 
-      console.log("Resposta completa:", response); // Para debug
-
-      // Acessar o objeto usuario dentro da resposta
-      const usuario = response;
-
-      if (usuario) {
-        console.log("Dados do usuário extraídos:", usuario);
-        setUsuarioEncontrado(usuario);
-      } else {
+      if (
+        !response ||
+        !response.usuario ||
+        response.usuario === null
+      ) {
         setError("Usuário não encontrado");
+        setUsuarioEncontrado(null);
+        return;
       }
+
+      setUsuarioEncontrado(response);
     } catch (error) {
       console.error("Erro ao buscar usuário:", error);
       setError(
         "Ocorreu um erro ao buscar o usuário. Por favor, tente novamente."
       );
+      setUsuarioEncontrado(null);
     } finally {
       setLoading(false);
     }
   };
 
   const handleConfirmarUsuario = () => {
-    console.log(usuarioEncontrado);
-    // Mapear os dados do usuário para o formato esperado pelo componente pai
+    if (!usuarioEncontrado || !usuarioEncontrado.usuario) return;
+
     const usuarioFormatado = {
       id: usuarioEncontrado.usuario.idUsuario,
       nome: usuarioEncontrado.usuario.nome,
       email: usuarioEncontrado.usuario.email,
       telefone: usuarioEncontrado.usuario.telefone,
-      endereco: {
-        logradouro: usuarioEncontrado.endereco
-          ? `${usuarioEncontrado.endereco.rua}, ${usuarioEncontrado.endereco.numero} - ${usuarioEncontrado.endereco.bairro}`
-          : "",
-        complemento: usuarioEncontrado.endereco
-          ? usuarioEncontrado.endereco.complemento
-          : "",
-        cidade: usuarioEncontrado.endereco
-          ? usuarioEncontrado.endereco.cidade
-          : "",
-        estado: usuarioEncontrado.endereco
-          ? usuarioEncontrado.endereco.estado
-          : "",
-        cep: usuarioEncontrado.endereco ? usuarioEncontrado.endereco.cep : "",
-      },
+      endereco: usuarioEncontrado.endereco
+        ? {
+            logradouro: usuarioEncontrado.endereco.rua
+              ? `${usuarioEncontrado.endereco.rua}, ${usuarioEncontrado.endereco.numero} - ${usuarioEncontrado.endereco.bairro}`
+              : "",
+            complemento: usuarioEncontrado.endereco.complemento || "",
+            cidade: usuarioEncontrado.endereco.cidade || "",
+            estado: usuarioEncontrado.endereco.estado || "",
+            cep: usuarioEncontrado.endereco.cep || "",
+          }
+        : null,
     };
 
     onUsuarioEncontrado(usuarioFormatado);
@@ -167,7 +164,7 @@ const BuscarUsuarioForm = ({ onUsuarioEncontrado, onSwitchToNovoUsuario }) => {
         </Alert>
       )}
 
-      {usuarioEncontrado && (
+      {usuarioEncontrado && usuarioEncontrado.usuario && (
         <Card
           sx={{
             mt: 3,
@@ -210,10 +207,10 @@ const BuscarUsuarioForm = ({ onUsuarioEncontrado, onSwitchToNovoUsuario }) => {
                   marginTop: "-40px",
                 }}
               >
-                {getInitials(usuarioEncontrado.nome)}
+                {getInitials(usuarioEncontrado.usuario.nome)}
               </Avatar>
               <Typography variant="h5" sx={{ mt: 2, fontWeight: "bold" }}>
-                {usuarioEncontrado.nome}
+                {usuarioEncontrado.usuario.nome}
               </Typography>
               <Chip
                 icon={<CheckCircle />}

@@ -174,7 +174,7 @@ const MontarPedido = ({ onNavigate }) => {
             pedidos={pedidos}
             onBack={handleBack}
             onFinish={handleFinish}
-            onRetirarNaLoja={() => handleRetirarNaLoja(pedidos, pedidoPayload)}
+            onRetirarNaLoja={handleRetirarNaLoja}
           />
         );
 

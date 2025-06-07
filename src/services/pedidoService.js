@@ -38,4 +38,16 @@ export const pedidoService = {
       );
     }
   },
+
+  atualizarStatus: async (pedidoId, novoStatus) => {
+    try {
+      const response = await httpClient.put(`/api/pedidos/${pedidoId}/status`, {
+        status: novoStatus,
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao atualizar status do pedido:", error);
+      throw error;
+    }
+  },
 };

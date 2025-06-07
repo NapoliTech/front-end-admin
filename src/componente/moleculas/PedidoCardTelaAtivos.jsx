@@ -24,12 +24,10 @@ import {
 import {
   KeyboardArrowDown,
   KeyboardArrowUp,
-  Visibility,
   Edit,
-  Delete,
   LocalPizza,
 } from "@mui/icons-material";
-import { pedidosAtivos } from "../../services/pedidosAtivos";
+import { pedidoService } from "../../services/pedidoService";
 
 const PedidoCardTelaAtivos = ({ pedido, onStatusChange }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -69,7 +67,7 @@ const PedidoCardTelaAtivos = ({ pedido, onStatusChange }) => {
   const handleSaveStatus = async () => {
     setLoading(true);
     try {
-      await pedidosAtivos.atualizarStatusPedido(pedido.id, selectedStatus);
+      await pedidoService.atualizarStatus(pedido.id, selectedStatus);
       setStatusLocal(selectedStatus);
       if (onStatusChange) {
         onStatusChange(pedido.id, selectedStatus);
@@ -155,15 +153,9 @@ const PedidoCardTelaAtivos = ({ pedido, onStatusChange }) => {
 
         <CardActions sx={{ p: 1, pt: 0, justifyContent: "space-between" }}>
           <Box>
-            {/* <IconButton size="small" color="primary">
-              <Visibility />
-            </IconButton> */}
             <IconButton size="small" color="success" onClick={handleEditClick}>
               <Edit />
             </IconButton>
-            {/* <IconButton size="small" color="error">
-              <Delete />
-            </IconButton> */}
           </Box>
 
           <IconButton
@@ -256,9 +248,9 @@ const PedidoCardTelaAtivos = ({ pedido, onStatusChange }) => {
                 label="Em Preparo"
               />
               <FormControlLabel
-                value="PRONTO"
+                value="ENCERRADO"
                 control={<Radio />}
-                label="Pronto"
+                label="ENCERRADO"
               />
               <FormControlLabel
                 value="ENTREGUE"
